@@ -31,3 +31,10 @@ The functions are thoroughly tested with various cases, including empty arrays, 
 ## Limitations
 
 Both algorithms have O(n^2) time complexity, but they serve as educational tools for understanding recursion.
+
+## Execution Evidence
+
+The following screenshots show the successful execution of the recursive functions and the test coverage results.
+
+- **Execution**: `activity1-execution.png` shows the output of running `npm start` for Activity 1, displaying the original array, unique array, and sorted array.
+- **Coverage**: `activity1-coverage.png` shows the Jest coverage report for Activity 1, indicating 100% coverage for `recursive.js`.

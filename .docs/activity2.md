@@ -31,3 +31,10 @@ The `runConcurrentOperations` function accepts an array of operation descriptors
 ## Testing
 
 Tests use Jest with fake timers to simulate delays and verify retry logic and concurrency control.
+
+## Execution Evidence
+
+The following screenshots demonstrate the concurrent warehouse operations and test coverage.
+
+- **Execution**: `activity2-execution.png` shows the logs from running the warehouse operations, including inventory updates, order processing, and retry attempts.
+- **Coverage**: `activity2-coverage.png` shows the Jest coverage report for Activity 2, covering the warehouse module.
