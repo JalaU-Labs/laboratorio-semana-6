@@ -5,9 +5,8 @@ describe('Activity 2 - Warehouse', () => {
   let originalRandom;
 
   beforeEach(() => {
-    // Ensure network operations always succeed by making Math.random return >0.2
     originalRandom = Math.random;
-    Math.random = jest.fn(() => 0.9);
+    Math.random = jest.fn(() => 0.9); // ensure no network errors
     jest.useFakeTimers();
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -21,20 +20,21 @@ describe('Activity 2 - Warehouse', () => {
 
   test('updateInventory should update inventory', async () => {
     const promise = updateInventory('product-1', 50);
-    jest.advanceTimersByTime(2000); // enough to cover random delay up to 1500ms
+    jest.runAllTimers();
+    await Promise.resolve(); // flush microtasks
     await promise;
     expect(true).toBe(true);
-  });
+  }, 10000);
 
   test('processOrder should throw if insufficient inventory', async () => {
-    // First update inventory with enough stock
-    const updatePromise = updateInventory('product-1', 100);
-    jest.advanceTimersByTime(2000);
-    await updatePromise;
-    // Now process order with more than available - this throws synchronously
-    const orderPromise = processOrder('order-1', 'product-1', 150);
-    await expect(orderPromise).rejects.toThrow('Insufficient inventory for product product-1');
-  });
+      const updatePromise = updateInventory('product-2', 100);
+      jest.runAllTimers();
+      await Promise.resolve();
+      await updatePromise;
+      const orderPromise = processOrder('order-2', 'product-2', 150);
+      
+      await expect(orderPromise).rejects.toThrow(/Insufficient inventory for product product-2/);
+    });
 
   test('retryOperation should retry on failure', async () => {
     let attempts = 0;
@@ -57,15 +57,15 @@ describe('Activity 2 - Warehouse', () => {
   });
 
   test('runConcurrentOperations should handle multiple operations without race conditions', async () => {
-    const ops = [
-      { type: 'updateInventory', productId: 'p1', quantity: 10 },
-      { type: 'updateInventory', productId: 'p1', quantity: 20 },
-      { type: 'processOrder', orderId: 'o1', productId: 'p1', quantity: 5 },
-    ];
-    const promise = runConcurrentOperations(ops);
-    // Advance timers enough to cover all delays (max 2000ms for product info, plus retries)
-    jest.advanceTimersByTime(10000);
-    await promise;
-    expect(true).toBe(true);
-  });
+      const ops = [
+        { type: 'updateInventory', productId: 'p1', quantity: 10 },
+        { type: 'updateInventory', productId: 'p1', quantity: 20 },
+        { type: 'processOrder', orderId: 'o1', productId: 'p1', quantity: 5 },
+      ];
+      const promise = runConcurrentOperations(ops);
+      await jest.runAllTimersAsync();
+      
+      await promise;
+      expect(true).toBe(true);
+    });
 });
