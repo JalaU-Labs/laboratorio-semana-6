@@ -15,17 +15,20 @@ describe('Activity 2 - Warehouse', () => {
 
   test('updateInventory should update inventory', async () => {
     const promise = updateInventory('product-1', 50);
-    jest.advanceTimersByTime(1000);
+    jest.runAllTimers();
     await promise;
-    expect(true).toBe(true); // Placeholder – actual state not exposed
+    expect(true).toBe(true);
   });
 
   test('processOrder should throw if insufficient inventory', async () => {
-    await updateInventory('product-1', 100);
-    jest.advanceTimersByTime(1000);
-    const promise = processOrder('order-1', 'product-1', 150);
-    jest.advanceTimersByTime(1000);
-    await expect(promise).rejects.toThrow('Insufficient inventory');
+    // First update inventory with enough stock
+    const updatePromise = updateInventory('product-1', 100);
+    jest.runAllTimers();
+    await updatePromise;
+    // Now process order with more than available
+    const orderPromise = processOrder('order-1', 'product-1', 150);
+    // Error is thrown synchronously before any timer, so no need to advance timers
+    await expect(orderPromise).rejects.toThrow('Insufficient inventory for product product-1');
   });
 
   test('retryOperation should retry on failure', async () => {
@@ -55,7 +58,7 @@ describe('Activity 2 - Warehouse', () => {
       { type: 'processOrder', orderId: 'o1', productId: 'p1', quantity: 5 },
     ];
     const promise = runConcurrentOperations(ops);
-    jest.advanceTimersByTime(3000);
+    jest.runAllTimers();
     await promise;
     expect(true).toBe(true);
   });
