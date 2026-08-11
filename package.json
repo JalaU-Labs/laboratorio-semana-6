@@ -1,0 +1,17 @@
+{
+  "name": "laboratorio-semana-6",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Week 6 lab: recursion, event loop, concurrency",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+  },
+  "author": "Diego Alejandro Botina Herrera",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
