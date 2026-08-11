@@ -2,20 +2,26 @@ import { jest } from '@jest/globals';
 import { updateInventory, processOrder, updateProductInfo, retryOperation, runConcurrentOperations } from '../../src/activity2/warehouse.js';
 
 describe('Activity 2 - Warehouse', () => {
+  let originalRandom;
+
   beforeEach(() => {
+    // Ensure network operations always succeed by making Math.random return >0.2
+    originalRandom = Math.random;
+    Math.random = jest.fn(() => 0.9);
     jest.useFakeTimers();
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
+    Math.random = originalRandom;
     jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
   test('updateInventory should update inventory', async () => {
     const promise = updateInventory('product-1', 50);
-    jest.runAllTimers();
+    jest.advanceTimersByTime(2000); // enough to cover random delay up to 1500ms
     await promise;
     expect(true).toBe(true);
   });
@@ -23,11 +29,10 @@ describe('Activity 2 - Warehouse', () => {
   test('processOrder should throw if insufficient inventory', async () => {
     // First update inventory with enough stock
     const updatePromise = updateInventory('product-1', 100);
-    jest.runAllTimers();
+    jest.advanceTimersByTime(2000);
     await updatePromise;
-    // Now process order with more than available
+    // Now process order with more than available - this throws synchronously
     const orderPromise = processOrder('order-1', 'product-1', 150);
-    // Error is thrown synchronously before any timer, so no need to advance timers
     await expect(orderPromise).rejects.toThrow('Insufficient inventory for product product-1');
   });
 
@@ -58,7 +63,8 @@ describe('Activity 2 - Warehouse', () => {
       { type: 'processOrder', orderId: 'o1', productId: 'p1', quantity: 5 },
     ];
     const promise = runConcurrentOperations(ops);
-    jest.runAllTimers();
+    // Advance timers enough to cover all delays (max 2000ms for product info, plus retries)
+    jest.advanceTimersByTime(10000);
     await promise;
     expect(true).toBe(true);
   });
