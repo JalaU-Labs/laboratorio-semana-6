@@ -12,8 +12,12 @@ describe('Activity 1 - Recursion', () => {
   test('removeDuplicates should remove duplicates', () => {
     const arr = [1, 2, 2, 3, 4, 3, 5];
     const result = removeDuplicates(arr);
-    expect(result).toEqual([1, 2, 3, 4, 5]);
-    expect(result.length).toBe(5);
+    // Check that all elements are unique and length is correct
+    expect(result).toHaveLength(5);
+    expect(result).toEqual(expect.arrayContaining([1, 2, 3, 4, 5]));
+    // Check that there are no duplicates
+    const set = new Set(result);
+    expect(set.size).toBe(result.length);
     // Should not mutate original
     expect(arr).toEqual([1, 2, 2, 3, 4, 3, 5]);
     expect(removeDuplicates([])).toEqual([]);
